@@ -1,0 +1,15 @@
+[project]
+name = "mcp-excel-online"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "icecream>=2.2.0",
+    "mcp>=1.28.1",
+    "msgraph-sdk>=1.58.0",
+    "python-dotenv>=1.2.2",
+]
+[[project.authors]]
+name = "Gokul Sudheesh"
+email = "gokulsudheesh1@gmail.com"
