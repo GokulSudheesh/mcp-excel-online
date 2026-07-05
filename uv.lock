@@ -603,7 +603,7 @@ wheels = [
 [[package]]
 name = "mcp-excel-online"
 version = "0.1.0"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
     { name = "icecream" },
     { name = "mcp" },

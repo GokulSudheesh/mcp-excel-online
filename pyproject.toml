@@ -10,6 +10,14 @@ dependencies = [
     "msgraph-sdk>=1.58.0",
     "python-dotenv>=1.2.2",
 ]
+
 [[project.authors]]
 name = "Gokul Sudheesh"
 email = "gokulsudheesh1@gmail.com"
+
+[project.scripts]
+mcp-excel-online = "mcp_excel_online:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

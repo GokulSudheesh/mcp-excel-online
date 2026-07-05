@@ -1,18 +1,12 @@
-import asyncio
 import json
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Literal, Optional
 
-from azure.identity import DeviceCodeCredential
 from icecream import ic
-from mcp.server.fastmcp import FastMCP, Context
+from mcp.server.fastmcp import FastMCP
 from mcp.types import ToolAnnotations
-from mcp.server.session import ServerSession
 from msgraph.generated.drives.item.items.item.workbook.workbook_request_builder import WorkbookRequestBuilder
-import os
-from dataclasses import dataclass
 from contextlib import asynccontextmanager
 from collections.abc import AsyncIterator
-from dotenv import load_dotenv
 from msgraph.graph_service_client import GraphServiceClient
 from msgraph.generated.models.workbook_range import WorkbookRange
 from msgraph.generated.models.workbook_worksheet import WorkbookWorksheet
@@ -20,61 +14,9 @@ from msgraph.generated.models.workbook_worksheet import WorkbookWorksheet
 from kiota_abstractions.method import Method
 from kiota_abstractions.request_information import RequestInformation
 
-import logging
-
-load_dotenv()
-CLIENT_ID = os.getenv('APP_CLIENT_ID')
-TENANT_ID = os.getenv('APP_TENANT_ID')
-DRIVE_ID = os.getenv('DRIVE_ID')
-
-
-class GraphClientManager:
-    """Singleton wrapper around the authenticated GraphServiceClient."""
-    SCOPES = ['https://graph.microsoft.com/.default']
-    _instance: Optional["GraphClientManager"] = None
-    _lock = asyncio.Lock()
-
-    def __init__(self):
-        # Guard against accidental direct instantiation
-        if GraphClientManager._instance is not None:
-            raise RuntimeError(
-                "Use GraphClientManager.get_instance() instead of constructing directly.")
-        self._client: Optional[GraphServiceClient] = None
-        self._credential = DeviceCodeCredential(
-            client_id=CLIENT_ID,
-            tenant_id="consumers",
-        )
-
-    @classmethod
-    async def get_instance(cls) -> "GraphClientManager":
-        """Get the singleton, creating and authenticating it on first call."""
-        async with cls._lock:
-            if cls._instance is None:
-                cls._instance = cls()
-                await cls._instance._authenticate()
-            return cls._instance
-
-    async def _authenticate(self) -> None:
-        self._client = GraphServiceClient(
-            credentials=self._credential, scopes=self.SCOPES)
-        profile_info = await self._client.me.get()
-        logging.info(
-            f"Authenticated as: {profile_info.display_name} ({profile_info.user_principal_name})"
-        )
-
-    @property
-    def client(self) -> GraphServiceClient:
-        if self._client is None:
-            raise RuntimeError(
-                "GraphClientManager not authenticated yet — call get_instance() first.")
-        return self._client
-
-
-@dataclass
-class SpreadsheetContext:
-    """Context for Microsoft Graph API service"""
-    graph_client: GraphServiceClient
-    folder_id: Optional[str] = None
+from mcp_excel_online.core.config import Settings
+from mcp_excel_online.core.graph_sdk.client_manager import GraphClientManager
+from mcp_excel_online.core.models.mcp import SpreadsheetContext, ToolContext, Transport
 
 
 @asynccontextmanager
@@ -85,20 +27,21 @@ async def workbook_lifespan(server: FastMCP) -> AsyncIterator[SpreadsheetContext
         # Provide the client in the context
         yield SpreadsheetContext(
             graph_client=manager.client,
-            folder_id=DRIVE_ID
+            folder_id=Settings.DRIVE_ID
         )
     finally:
         # No explicit cleanup needed for Microsoft Graph API
         pass
 
 
-async def get_workbook_by_id(workbook_id: str, ctx: Context[ServerSession, SpreadsheetContext]) -> WorkbookRequestBuilder | None:
+async def get_workbook_by_id(workbook_id: str, ctx: ToolContext) -> WorkbookRequestBuilder | None:
     """Get the workbook from a specific drive item by its ID."""
     client = ctx.request_context.lifespan_context.graph_client
     drive_item = client.drives.by_drive_id(
-        DRIVE_ID).items.by_drive_item_id(workbook_id)
+        Settings.DRIVE_ID).items.by_drive_item_id(workbook_id)
     workbook = drive_item.workbook if drive_item else None
     return workbook
+
 
 mcp = FastMCP(
     name="Excel Online",
@@ -115,7 +58,7 @@ mcp = FastMCP(
 async def get_worksheet_data(workbook_id: str,
                              sheet_name: str,
                              range: Optional[str] = None,
-                             ctx: Context[ServerSession, SpreadsheetContext] = None) -> List[List[Any]] | None:
+                             ctx: ToolContext = None) -> List[List[Any]] | None:
     """
     Get data from a specific worksheet and range.
 
@@ -149,7 +92,7 @@ async def get_worksheet_data(workbook_id: str,
 async def get_worksheet_formulas(workbook_id: str,
                                  sheet_name: str,
                                  range: Optional[str] = None,
-                                 ctx: Context[ServerSession, SpreadsheetContext] = None) -> List[List[Any]] | None:
+                                 ctx: ToolContext = None) -> List[List[Any]] | None:
     """
     Get formulas from a specific worksheet and range.
 
@@ -203,7 +146,7 @@ async def patch_worksheet_data_in_range(
 async def update_worksheet_data(workbook_id: str,
                                 sheet_name: str,
                                 range: str, data: List[List[str]],
-                                ctx: Context[ServerSession, SpreadsheetContext] = None) -> Dict[str, Any]:
+                                ctx: ToolContext = None) -> Dict[str, Any]:
     """
     Update data in a specific worksheet and range.
 
@@ -235,7 +178,7 @@ async def update_worksheet_data(workbook_id: str,
     ),
 )
 async def list_sheets(workbook_id: str,
-                      ctx: Context[ServerSession, SpreadsheetContext] = None) -> List[str] | None:
+                      ctx: ToolContext = None) -> List[str] | None:
     """
     List all sheets in a workbook.
 
@@ -261,7 +204,7 @@ async def list_sheets(workbook_id: str,
     ),
 )
 async def rename_sheet(workbook_id: str, sheet_name: str,
-                       new_name: str, ctx: Context[ServerSession, SpreadsheetContext] = None) -> Dict[str, Any] | None:
+                       new_name: str, ctx: ToolContext = None) -> Dict[str, Any] | None:
     """Rename a worksheet.
 
     Args:
@@ -289,7 +232,7 @@ async def rename_sheet(workbook_id: str, sheet_name: str,
     ),
 )
 async def create_sheet(workbook_id: str, sheet_name: str,
-                       ctx: Context[ServerSession, SpreadsheetContext] = None) -> Dict[str, Any] | None:
+                       ctx: ToolContext = None) -> Dict[str, Any] | None:
     """Create a new worksheet.
 
     Args:
@@ -319,7 +262,7 @@ async def create_sheet(workbook_id: str, sheet_name: str,
         destructiveHint=True,
     ),
 )
-async def delete_sheet(workbook_id: str, sheet_name: str, ctx: Context[ServerSession, SpreadsheetContext] = None) -> Dict[str, Any] | None:
+async def delete_sheet(workbook_id: str, sheet_name: str, ctx: ToolContext = None) -> Dict[str, Any] | None:
     """Delete a worksheet.
 
     Args:
@@ -342,7 +285,7 @@ async def delete_sheet(workbook_id: str, sheet_name: str, ctx: Context[ServerSes
         destructiveHint=True,
     ),
 )
-async def copy_sheet(src_workbook_id: str, src_sheet_name: str, dst_workbook_id: str, dst_sheet_name: str, ctx: Context[ServerSession, SpreadsheetContext] = None) -> Dict[str, Any] | None:
+async def copy_sheet(src_workbook_id: str, src_sheet_name: str, dst_workbook_id: str, dst_sheet_name: str, ctx: ToolContext = None) -> Dict[str, Any] | None:
     """Copy a worksheet.
 
     Args:
@@ -393,10 +336,5 @@ async def copy_sheet(src_workbook_id: str, src_sheet_name: str, dst_workbook_id:
     }
 
 
-def main():
-    # Initialize and run the server
-    mcp.run(transport="sse")
-
-
-if __name__ == "__main__":
-    main()
+def serve(transport: Transport = "sse"):
+    mcp.run(transport=transport)
