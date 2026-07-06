@@ -1,7 +1,11 @@
 import asyncio
-from typing import Optional
+from typing import Optional, Union
 from azure.identity import DeviceCodeCredential
+from azure.identity.aio import ClientSecretCredential
+from azure.core.credentials import TokenCredential
+from azure.core.credentials_async import AsyncTokenCredential
 import logging
+from mcp_excel_online.core.args import args
 from mcp_excel_online.core.config import Settings
 from mcp_excel_online.core.graph_sdk.service_client import ServiceClient
 
@@ -18,10 +22,8 @@ class GraphClientManager:
             raise RuntimeError(
                 "Use GraphClientManager.get_instance() instead of constructing directly.")
         self._client: Optional[ServiceClient] = None
-        self._credential = DeviceCodeCredential(
-            client_id=Settings.CLIENT_ID,
-            tenant_id="consumers",
-        )
+        self._credential: Optional[Union[TokenCredential,
+                                         AsyncTokenCredential]] = self.get_credential()
 
     @classmethod
     async def get_instance(cls) -> "GraphClientManager":
@@ -31,6 +33,25 @@ class GraphClientManager:
                 cls._instance = cls()
                 await cls._instance._authenticate()
             return cls._instance
+
+    def get_credential(self) -> Optional[Union[TokenCredential, AsyncTokenCredential]]:
+        if args.graph_permission == "application":
+            logging.info(
+                "Using application credential (ClientSecretCredential)")
+            return ClientSecretCredential(
+                tenant_id=Settings.TENANT_ID,
+                client_id=Settings.CLIENT_ID,
+                client_secret=Settings.CLIENT_SECRET,
+            )
+        elif args.graph_permission == "delegated":
+            logging.info("Using delegated credential (DeviceCodeCredential)")
+            return DeviceCodeCredential(
+                client_id=Settings.CLIENT_ID,
+                tenant_id="consumers",
+            )
+        else:
+            raise ValueError(
+                f"Invalid graph_permission: {args.graph_permission}")
 
     async def _authenticate(self) -> None:
         self._client = ServiceClient(

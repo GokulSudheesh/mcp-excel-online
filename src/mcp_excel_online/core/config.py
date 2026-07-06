@@ -17,4 +17,6 @@ load_dotenv()
 
 class Settings():
     CLIENT_ID = os.getenv('APP_CLIENT_ID')
+    TENANT_ID = os.getenv('APP_TENANT_ID')
+    CLIENT_SECRET = os.getenv('APP_CLIENT_SECRET')
     DRIVE_ID = os.getenv('DRIVE_ID')
