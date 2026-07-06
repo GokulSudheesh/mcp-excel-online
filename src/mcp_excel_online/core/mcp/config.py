@@ -21,7 +21,7 @@ async def workbook_lifespan(server: FastMCP) -> AsyncIterator[SpreadsheetContext
         # No explicit cleanup needed for Microsoft Graph API
         pass
 
-mcp = FastMCP(
+mcp = FastMCP[SpreadsheetContext](
     name="Excel Online",
     lifespan=workbook_lifespan,
 )
