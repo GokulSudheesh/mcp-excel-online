@@ -20,3 +20,5 @@ class Settings():
     TENANT_ID = os.getenv('APP_TENANT_ID')
     CLIENT_SECRET = os.getenv('APP_CLIENT_SECRET')
     DRIVE_ID = os.getenv('DRIVE_ID')
+    HOST = os.getenv('HOST', '0.0.0.0')
+    PORT = int(os.getenv('PORT', 8000))

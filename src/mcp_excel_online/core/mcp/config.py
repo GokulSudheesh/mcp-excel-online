@@ -24,4 +24,6 @@ async def workbook_lifespan(server: FastMCP) -> AsyncIterator[SpreadsheetContext
 mcp = FastMCP[SpreadsheetContext](
     name="Excel Online",
     lifespan=workbook_lifespan,
+    port=Settings.PORT,
+    host=Settings.HOST,
 )
