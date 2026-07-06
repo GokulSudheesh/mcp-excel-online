@@ -4,7 +4,6 @@ from pydantic import Field
 
 from mcp_excel_online.core.config import Settings
 from mcp_excel_online.core.mcp.config import mcp
-from mcp_excel_online.tools.helper import get_drive_children
 
 
 @mcp.resource(
@@ -17,7 +16,7 @@ async def list_drive_items() -> str:
     """GET /me/drive/root/children"""
     context = mcp.get_context()
     client = context.request_context.lifespan_context.graph_client
-    data = await get_drive_children(client, "/me/drive/root/children")
+    data = await client.get_drive_children("/me/drive/root/children")
     writer = JsonSerializationWriter()
     data.serialize(writer)
     json_data = json.loads(writer.get_serialized_content())
@@ -36,7 +35,7 @@ async def list_folder_items(drive_id: str = Field(description="The ID of the dri
     context = mcp.get_context()
     client = context.request_context.lifespan_context.graph_client
     resolved_drive_id = drive_id or Settings.DRIVE_ID
-    data = await get_drive_children(client, f"/drives/{resolved_drive_id}/root:/{relative_path}:/children")
+    data = await client.get_drive_children(f"/drives/{resolved_drive_id}/root:/{relative_path}:/children")
     writer = JsonSerializationWriter()
     data.serialize(writer)
     json_data = json.loads(writer.get_serialized_content())

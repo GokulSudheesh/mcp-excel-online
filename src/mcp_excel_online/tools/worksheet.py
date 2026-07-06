@@ -3,7 +3,6 @@ from mcp.types import ToolAnnotations
 from mcp_excel_online.core.models.mcp import ToolContext
 
 from mcp_excel_online.core.mcp.config import mcp
-from mcp_excel_online.tools.helper import get_workbook_by_id, patch_worksheet_data_in_range
 
 
 @mcp.tool(
@@ -27,7 +26,8 @@ async def get_worksheet_data(workbook_id: str,
     Returns:
         A 2D array of the sheet formulas.
     """
-    workbook = await get_workbook_by_id(workbook_id, ctx)
+    client = ctx.request_context.lifespan_context.graph_client
+    workbook = await client.get_workbook_by_id(workbook_id)
     if not workbook:
         return None
 
@@ -61,7 +61,8 @@ async def get_worksheet_formulas(workbook_id: str,
     Returns:
         A 2D array of the sheet formulas.
     """
-    workbook = await get_workbook_by_id(workbook_id, ctx)
+    client = ctx.request_context.lifespan_context.graph_client
+    workbook = await client.get_workbook_by_id(workbook_id)
     if not workbook:
         return None
 
@@ -94,12 +95,12 @@ async def update_worksheet_data(workbook_id: str,
         data: A 2D array of values to update the specified range with.
     """
     client = ctx.request_context.lifespan_context.graph_client
-    workbook = await get_workbook_by_id(workbook_id, ctx)
+    workbook = await client.get_workbook_by_id(workbook_id)
     if not workbook:
         return {"success": False, "error": "Workbook not found"}
     body = {"values": data}
-    result = await patch_worksheet_data_in_range(client=client, workbook=workbook, sheet_name=sheet_name,
-                                                 range=range, body=body)
+    result = await client.patch_worksheet_data_in_range(workbook=workbook, sheet_name=sheet_name,
+                                                        range=range, body=body)
 
     return {
         "success": True if result is not None else False,

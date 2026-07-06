@@ -5,7 +5,6 @@ from msgraph.generated.models.workbook_worksheet import WorkbookWorksheet
 from mcp_excel_online.core.models.mcp import ToolContext, Transport
 
 from mcp_excel_online.core.mcp.config import mcp
-from mcp_excel_online.tools.helper import get_workbook_by_id, patch_worksheet_data_in_range
 
 
 @mcp.tool(
@@ -25,7 +24,8 @@ async def list_sheets(workbook_id: str,
     Returns:
         List of sheet names
     """
-    workbook = await get_workbook_by_id(workbook_id, ctx)
+    client = ctx.request_context.lifespan_context.graph_client
+    workbook = await client.get_workbook_by_id(workbook_id)
     if not workbook:
         return None
     sheets = await workbook.worksheets.get()
@@ -49,7 +49,8 @@ async def rename_sheet(workbook_id: str, sheet_name: str,
         sheet_name: Current name (or id) of the sheet.
         new_name: The desired new name.
     """
-    workbook = await get_workbook_by_id(workbook_id, ctx)
+    client = ctx.request_context.lifespan_context.graph_client
+    workbook = await client.get_workbook_by_id(workbook_id)
     if not workbook:
         return None
     worksheet = workbook.worksheets.by_workbook_worksheet_id(sheet_name)
@@ -79,7 +80,8 @@ async def create_sheet(workbook_id: str, sheet_name: str,
     Returns:
         The created WorkbookWorksheet object.
     """
-    workbook = await get_workbook_by_id(workbook_id, ctx)
+    client = ctx.request_context.lifespan_context.graph_client
+    workbook = await client.get_workbook_by_id(workbook_id)
     if not workbook:
         return None
 
@@ -106,7 +108,8 @@ async def delete_sheet(workbook_id: str, sheet_name: str, ctx: ToolContext = Non
         workbook_id: The ID of the workbook.
         sheet_name: Name (or id) of the sheet to delete.
     """
-    workbook = await get_workbook_by_id(workbook_id, ctx)
+    client = ctx.request_context.lifespan_context.graph_client
+    workbook = await client.get_workbook_by_id(workbook_id)
     if not workbook:
         return None
 
@@ -132,8 +135,8 @@ async def copy_sheet(src_workbook_id: str, src_sheet_name: str, dst_workbook_id:
         dst_sheet_name: Name for the new sheet in the destination workbook.
     """
     client = ctx.request_context.lifespan_context.graph_client
-    src_workbook = await get_workbook_by_id(src_workbook_id, ctx)
-    dst_workbook = await get_workbook_by_id(dst_workbook_id, ctx)
+    src_workbook = await client.get_workbook_by_id(src_workbook_id)
+    dst_workbook = await client.get_workbook_by_id(dst_workbook_id)
     if (not src_workbook or not dst_workbook):
         return {"success": False, "error": "Source or destination workbook not found"}
 
@@ -162,7 +165,7 @@ async def copy_sheet(src_workbook_id: str, src_sheet_name: str, dst_workbook_id:
         "valueTypes": src_workbook_range.additional_data.get("valueTypes"),
         "values": src_workbook_range.additional_data.get("values"),
     }
-    result = await patch_worksheet_data_in_range(client=client, workbook=dst_workbook, sheet_name=dst_sheet_name, range=range, body=body)
+    result = await client.patch_worksheet_data_in_range(workbook=dst_workbook, sheet_name=dst_sheet_name, range=range, body=body)
     if not result:
         return {"success": False, "error": "Failed to copy data to destination worksheet"}
 
