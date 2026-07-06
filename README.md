@@ -58,7 +58,7 @@ Required: `APP_CLIENT_ID` only
 | `APP_CLIENT_ID`     | **Always**                   | The Application (client) ID of your Azure app registration |
 | `APP_TENANT_ID`     | Application permissions only | The Directory (tenant) ID of your Azure tenant             |
 | `APP_CLIENT_SECRET` | Application permissions only | A client secret generated for your app registration        |
-| `DRIVE_ID`          | Optional                     | OneDrive Drive ID to use as the default drive              |
+| `DRIVE_ID`          | Required                     | OneDrive Drive ID to use as the default drive              |
 | `HOST`              | Optional                     | Host address the server binds to (default: `0.0.0.0`)      |
 | `PORT`              | Optional                     | Port the server listens on (default: `8000`)               |
 
@@ -87,7 +87,7 @@ DRIVE_ID=your-drive-id
 **1. Clone the repository**
 
 ```bash
-git clone <clone_url>
+git clone https://github.com/GokulSudheesh/mcp-excel-online.git
 cd mcp-excel-online
 ```
 
