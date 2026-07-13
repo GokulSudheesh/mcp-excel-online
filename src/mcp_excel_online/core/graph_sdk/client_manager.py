@@ -5,7 +5,6 @@ from azure.identity.aio import ClientSecretCredential
 from azure.core.credentials import TokenCredential
 from azure.core.credentials_async import AsyncTokenCredential
 import logging
-from mcp_excel_online.core.args import args
 from mcp_excel_online.core.config import Settings
 from mcp_excel_online.core.graph_sdk.service_client import ServiceClient
 
@@ -35,6 +34,7 @@ class GraphClientManager:
             return cls._instance
 
     def get_credential(self) -> Optional[Union[TokenCredential, AsyncTokenCredential]]:
+        from mcp_excel_online.core.args import args
         if args.graph_permission == "application":
             logging.info(
                 "Using application credential (ClientSecretCredential)")

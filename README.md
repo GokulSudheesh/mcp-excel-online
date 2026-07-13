@@ -75,10 +75,30 @@ DRIVE_ID=your-drive-id
 
 ## Arguments
 
-| Argument             | Options                           | Default     | Description                                 |
-| -------------------- | --------------------------------- | ----------- | ------------------------------------------- |
-| `--transport`        | `stdio`, `sse`, `streamable-http` | `sse`       | MCP transport protocol to use               |
-| `--graph-permission` | `delegated`, `application`        | `delegated` | Microsoft Graph permission type (see above) |
+| Argument             | Options                           | Default     | Description                                                                      |
+| -------------------- | --------------------------------- | ----------- | -------------------------------------------------------------------------------- |
+| `--transport`        | `stdio`, `sse`, `streamable-http` | `sse`       | MCP transport protocol to use                                                    |
+| `--graph-permission` | `delegated`, `application`        | `delegated` | Microsoft Graph permission type (see above)                                      |
+| `--include-tools`    | Comma-separated tool names        | _(all)_     | Only register the specified tools. If omitted, all tools are enabled (see below) |
+
+### Available tool names for `--include-tools`
+
+| Tool name                | Description                                               |
+| ------------------------ | --------------------------------------------------------- |
+| `list_sheets`            | List all worksheets in a workbook                         |
+| `create_sheet`           | Add a new worksheet to a workbook                         |
+| `rename_sheet`           | Rename an existing worksheet                              |
+| `delete_sheet`           | Delete a worksheet from a workbook                        |
+| `copy_sheet`             | Copy a worksheet from one workbook to another             |
+| `get_worksheet_data`     | Read cell values from a worksheet (full sheet or a range) |
+| `get_worksheet_formulas` | Read formulas from a worksheet (full sheet or a range)    |
+| `update_worksheet_data`  | Write values to a cell range in a worksheet               |
+
+**Example** — expose only read-only tools:
+
+```bash
+uv run mcp-excel-online --include-tools list_sheets,get_worksheet_data,get_worksheet_formulas
+```
 
 ---
 
@@ -104,6 +124,9 @@ uv run mcp-excel-online --transport stdio --graph-permission application
 
 # streamable-http transport
 uv run mcp-excel-online --transport streamable-http
+
+# Only enable specific tools
+uv run mcp-excel-online --include-tools list_sheets,get_worksheet_data,get_worksheet_formulas
 ```
 
 ---

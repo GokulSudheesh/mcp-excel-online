@@ -5,6 +5,8 @@ from collections.abc import AsyncIterator
 from mcp_excel_online.core.config import Settings
 from mcp_excel_online.core.graph_sdk.client_manager import GraphClientManager
 from mcp_excel_online.core.models.mcp import SpreadsheetContext
+from mcp_excel_online.core.mcp.server import MCPServer
+from mcp_excel_online.core.args import args
 
 
 @asynccontextmanager
@@ -21,9 +23,11 @@ async def workbook_lifespan(server: FastMCP) -> AsyncIterator[SpreadsheetContext
         # No explicit cleanup needed for Microsoft Graph API
         pass
 
-mcp = FastMCP[SpreadsheetContext](
+
+mcp = MCPServer[SpreadsheetContext](
     name="Excel Online",
     lifespan=workbook_lifespan,
     port=Settings.PORT,
     host=Settings.HOST,
+    enabled_tools=args.include_tools,
 )
