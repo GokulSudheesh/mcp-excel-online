@@ -15,6 +15,11 @@ dependencies = [
 name = "Gokul Sudheesh"
 email = "gokulsudheesh1@gmail.com"
 
+[project.urls]
+"Homepage" = "https://github.com/GokulSudheesh/mcp-excel-online"
+"Bug Tracker" = "https://github.com/GokulSudheesh/mcp-excel-online/issues"
+"Repository" = "https://github.com/GokulSudheesh/mcp-excel-online.git"
+
 [project.scripts]
 mcp-excel-online = "mcp_excel_online:main"
 
