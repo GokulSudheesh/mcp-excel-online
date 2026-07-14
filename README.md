@@ -4,6 +4,98 @@ An [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) server that 
 
 ---
 
+## 🚀 Quick Start (Using `uvx`)
+
+Essentially the server runs in one line: `uvx mcp-excel-online@latest`.
+
+This command will automatically download the latest code and run it. **It is recommended to always use `@latest`** to ensure you have the newest version with the latest features and bug fixes.
+
+1. **☁️ Prerequisite: Azure App Registration**
+   - You **must** configure an Azure Entra ID (Azure AD) app registration and grant the necessary Microsoft Graph API permissions first.
+   - ➡️ Jump to the [**Azure App Registration**](#azure-app-registration) guide below.
+
+2. **Install `uv`**
+   - [Installation guide](https://docs.astral.sh/uv/getting-started/installation)
+
+3. **🔑 Set Essential Environment Variables**
+   - You need to tell the server how to authenticate. Set these variables in your terminal:
+   - **(Linux/macOS)**
+
+     ```bash
+     export APP_CLIENT_ID="your-client-id"
+     export APP_TENANT_ID="your-tenant-id"       # required for application permissions
+     export APP_CLIENT_SECRET="your-client-secret" # required for application permissions
+     export DRIVE_ID="your-drive-id"
+     ```
+
+   - **(Windows CMD)**
+
+     ```cmd
+     set APP_CLIENT_ID="your-client-id"
+     set APP_TENANT_ID="your-tenant-id"
+     set APP_CLIENT_SECRET="your-client-secret"
+     set DRIVE_ID="your-drive-id"
+     ```
+
+   - **(Windows PowerShell)**
+
+     ```powershell
+     $env:APP_CLIENT_ID = "your-client-id"
+     $env:APP_TENANT_ID = "your-tenant-id"
+     $env:APP_CLIENT_SECRET = "your-client-secret"
+     $env:DRIVE_ID = "your-drive-id"
+     ```
+
+   - ➡️ See [**Environment Variables**](#environment-variables) for the full list of options.
+
+4. **🏃 Run the Server!**
+   - `uvx` will automatically download and run the latest version of `mcp-excel-online`:
+
+     ```bash
+     uvx mcp-excel-online@latest
+     ```
+
+   - The server will start and print logs indicating it's ready.
+
+   > **💡 Pro Tip:** Always use `@latest` to ensure you get the newest version with bug fixes and features. Without `@latest`, `uvx` may use a cached older version.
+
+5. **🔌 Connect your MCP Client**
+   - Configure your client (e.g., Claude Desktop) to connect to the running server.
+   - Depending on the client you use, you might not need step 4 because the client can launch the server for you. But it's a good practice to test run step 4 anyway to make sure things are set up properly.
+
+6. **⚡ Optional: Enable Tool Filtering (Reduce Context Usage)**
+   - By default, all tools are enabled. To reduce context usage, enable only the tools you need.
+   - ➡️ See [**Available tool names for `--include-tools`**](#available-tool-names-for---include-tools) for details.
+
+Set up is complete, you can now start issuing commands via your MCP client.
+
+---
+
+## 📖 Table of Contents
+
+- [MCP Excel Online](#mcp-excel-online)
+  - [🚀 Quick Start (Using `uvx`)](#-quick-start-using-uvx)
+  - [📖 Table of Contents](#-table-of-contents)
+  - [Features](#features)
+    - [Resources](#resources)
+    - [Tools](#tools)
+  - [Prerequisites](#prerequisites)
+  - [Azure App Registration](#azure-app-registration)
+    - [Permission Types](#permission-types)
+  - [Environment Variables](#environment-variables)
+  - [Arguments](#arguments)
+    - [Available tool names for `--include-tools`](#available-tool-names-for---include-tools)
+    - [Running Locally with uv](#running-locally-with-uv)
+      - [1. Clone the repository](#1-clone-the-repository)
+      - [2. Create your `.env` file with the required environment variables (see above)](#2-create-your-env-file-with-the-required-environment-variables-see-above)
+      - [3. Start the server](#3-start-the-server)
+    - [Running with Docker](#running-with-docker)
+      - [1. Building the image locally](#1-building-the-image-locally)
+      - [OR Pulling the image from Docker Hub](#or-pulling-the-image-from-docker-hub)
+      - [2. Run the container](#2-run-the-container)
+
+---
+
 ## Features
 
 ### Resources
