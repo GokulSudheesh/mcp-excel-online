@@ -1,5 +1,4 @@
 from typing import Any, Dict, List
-from icecream import ic
 from mcp.types import ToolAnnotations
 from msgraph.generated.models.workbook_worksheet import WorkbookWorksheet
 from mcp_excel_online.core.models.mcp import ToolContext, Transport
@@ -153,7 +152,6 @@ async def copy_sheet(src_workbook_id: str, src_sheet_name: str, dst_workbook_id:
     # Now copy the data from the source worksheet to the new destination worksheet
     range = src_workbook_range.address.split(
         "!")[1] if "!" in src_workbook_range.address else src_workbook_range.address
-    ic(range, src_workbook_range)
     if not range:
         return {"success": False, "error": "Source worksheet has no data to copy"}
     body = {

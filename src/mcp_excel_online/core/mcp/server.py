@@ -1,5 +1,4 @@
 from typing import Any, Callable, Optional, TypeVar
-from icecream import ic
 from mcp.server.fastmcp import FastMCP
 from mcp.types import ToolAnnotations
 
@@ -26,7 +25,6 @@ class MCPServer(FastMCP[ContextT]):
     ) -> Callable:
         def decorator(f: Callable) -> Callable:
             tool_name = f.__name__
-            ic(self.enabled_tools)
             if self.enabled_tools is None or tool_name in self.enabled_tools:
                 parent_decorator = super(MCPServer, self).tool(
                     annotations=annotations, **kwargs

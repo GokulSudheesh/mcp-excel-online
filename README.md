@@ -102,18 +102,18 @@ uv run mcp-excel-online --include-tools list_sheets,get_worksheet_data,get_works
 
 ---
 
-## Running Locally with uv
+### Running Locally with uv
 
-**1. Clone the repository**
+#### 1. Clone the repository
 
 ```bash
 git clone https://github.com/GokulSudheesh/mcp-excel-online.git
 cd mcp-excel-online
 ```
 
-**2. Create your `.env` file** with the required environment variables (see above).
+#### 2. Create your `.env` file with the required environment variables (see above)
 
-**3. Start the server**
+#### 3. Start the server
 
 ```bash
 # SSE transport with delegated permissions (device code login)
@@ -131,15 +131,21 @@ uv run mcp-excel-online --include-tools list_sheets,get_worksheet_data,get_works
 
 ---
 
-## Running with Docker
+### Running with Docker
 
-**1. Build the image**
+#### 1. Building the image locally
 
 ```bash
 docker build -t mcp-excel-online .
 ```
 
-**2. Run the container**
+#### OR Pulling the image from Docker Hub
+
+```bash
+docker pull batmansroomie/mcp-excel-online:main
+```
+
+#### 2. Run the container
 
 ```bash
 docker run --rm -p 8000:8000 \

@@ -45,8 +45,6 @@ class AppArgs(argparse.Namespace):
 
     @classmethod
     def parse(cls) -> "AppArgs":
-        logging.info(f"Available tools: {', '.join(cls.AVAILABLE_TOOLS)}")
-
         parser = argparse.ArgumentParser(description="MCP Excel Online server")
         parser.add_argument(
             "--transport",
