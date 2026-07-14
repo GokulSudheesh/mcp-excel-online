@@ -27,6 +27,9 @@ jobs:
       - name: Install dependencies
         run: uv sync --frozen --all-extras --dev --python 3.13
 
+      - name: Set version from release tag
+        run: uv version "${GITHUB_REF_NAME#v}" # strips a leading 'v' from tag like v1.2.3
+
       - name: Build package
         run: uv build
 
