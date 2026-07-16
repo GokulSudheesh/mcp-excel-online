@@ -1,9 +1,11 @@
 from typing import Any, Dict, List
 from mcp.types import ToolAnnotations
 from msgraph.generated.models.workbook_worksheet import WorkbookWorksheet
-from mcp_excel_online.core.models.mcp import ToolContext, Transport
+from pydantic import Field
+from mcp_excel_online.core.models.mcp import ToolContext
 
 from mcp_excel_online.core.mcp.config import mcp
+from mcp_excel_online.core.models.tools import WORKBOOK_ID_FIELD
 
 
 @mcp.tool(
@@ -12,7 +14,7 @@ from mcp_excel_online.core.mcp.config import mcp
         readOnlyHint=True,
     ),
 )
-async def list_sheets(workbook_id: str,
+async def list_sheets(workbook_id: str = WORKBOOK_ID_FIELD,
                       ctx: ToolContext = None) -> List[str] | None:
     """
     List all sheets in a workbook.
@@ -39,8 +41,10 @@ async def list_sheets(workbook_id: str,
         destructiveHint=True,
     ),
 )
-async def rename_sheet(workbook_id: str, sheet_name: str,
-                       new_name: str, ctx: ToolContext = None) -> Dict[str, Any] | None:
+async def rename_sheet(workbook_id: str = WORKBOOK_ID_FIELD,
+                       sheet_name: str = Field(
+                           description="Current name (or id) of the sheet."),
+                       new_name: str = Field(description="The desired new name of the sheet."), ctx: ToolContext = None) -> Dict[str, Any] | None:
     """Rename a worksheet.
 
     Args:
@@ -68,7 +72,9 @@ async def rename_sheet(workbook_id: str, sheet_name: str,
         destructiveHint=True,
     ),
 )
-async def create_sheet(workbook_id: str, sheet_name: str,
+async def create_sheet(workbook_id: str = WORKBOOK_ID_FIELD,
+                       sheet_name: str = Field(
+                           description="Name for the new sheet."),
                        ctx: ToolContext = None) -> Dict[str, Any] | None:
     """Create a new worksheet.
 
@@ -100,7 +106,10 @@ async def create_sheet(workbook_id: str, sheet_name: str,
         destructiveHint=True,
     ),
 )
-async def delete_sheet(workbook_id: str, sheet_name: str, ctx: ToolContext = None) -> Dict[str, Any] | None:
+async def delete_sheet(workbook_id: str = WORKBOOK_ID_FIELD,
+                       sheet_name: str = Field(
+                           description="Name (or id) of the sheet to delete."),
+                       ctx: ToolContext = None) -> Dict[str, Any] | None:
     """Delete a worksheet.
 
     Args:
@@ -124,7 +133,14 @@ async def delete_sheet(workbook_id: str, sheet_name: str, ctx: ToolContext = Non
         destructiveHint=True,
     ),
 )
-async def copy_sheet(src_workbook_id: str, src_sheet_name: str, dst_workbook_id: str, dst_sheet_name: str, ctx: ToolContext = None) -> Dict[str, Any] | None:
+async def copy_sheet(src_workbook_id: str = Field(description="ID of the source workbook"),
+                     src_sheet_name: str = Field(
+                         description="Name (or id) of the source sheet to copy"),
+                     dst_workbook_id: str = Field(
+                         description="ID of the destination workbook"),
+                     dst_sheet_name: str = Field(
+                         description="Name for the new sheet in the destination workbook"),
+                     ctx: ToolContext = None) -> Dict[str, Any] | None:
     """Copy a worksheet.
 
     Args:

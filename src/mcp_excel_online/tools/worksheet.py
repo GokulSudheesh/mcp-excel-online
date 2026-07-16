@@ -1,8 +1,10 @@
 from typing import Any, Dict, List, Optional
 from mcp.types import ToolAnnotations
+from pydantic import Field
 from mcp_excel_online.core.models.mcp import ToolContext
 
 from mcp_excel_online.core.mcp.config import mcp
+from mcp_excel_online.core.models.tools import WORKBOOK_ID_FIELD, SHEET_NAME_FIELD
 
 
 @mcp.tool(
@@ -11,8 +13,8 @@ from mcp_excel_online.core.mcp.config import mcp
         readOnlyHint=True,
     ),
 )
-async def get_worksheet_data(workbook_id: str,
-                             sheet_name: str,
+async def get_worksheet_data(workbook_id: str = WORKBOOK_ID_FIELD,
+                             sheet_name: str = SHEET_NAME_FIELD,
                              range: Optional[str] = None,
                              ctx: ToolContext = None) -> List[List[Any]] | None:
     """
@@ -46,8 +48,8 @@ async def get_worksheet_data(workbook_id: str,
         readOnlyHint=True,
     ),
 )
-async def get_worksheet_formulas(workbook_id: str,
-                                 sheet_name: str,
+async def get_worksheet_formulas(workbook_id: str = WORKBOOK_ID_FIELD,
+                                 sheet_name: str = SHEET_NAME_FIELD,
                                  range: Optional[str] = None,
                                  ctx: ToolContext = None) -> List[List[Any]] | None:
     """
@@ -81,9 +83,12 @@ async def get_worksheet_formulas(workbook_id: str,
         destructiveHint=True,
     ),
 )
-async def update_worksheet_data(workbook_id: str,
-                                sheet_name: str,
-                                range: str, data: List[List[str]],
+async def update_worksheet_data(workbook_id: str = WORKBOOK_ID_FIELD,
+                                sheet_name: str = SHEET_NAME_FIELD,
+                                range: str = Field(
+                                    description="Cell range in A1 notation (e.g., 'A1:C10')"),
+                                data: List[List[str]] = Field(
+                                    description="A 2D array of values to update the specified range with."),
                                 ctx: ToolContext = None) -> Dict[str, Any]:
     """
     Update data in a specific worksheet and range.
